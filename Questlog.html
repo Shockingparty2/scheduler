@@ -1,0 +1,339 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>Questlog</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Chakra+Petch:wght@500;700&family=Barlow:wght@400;500;600&display=swap" rel="stylesheet">
+<style>
+:root{--bg:#e9eff7;--panel:#fff;--ink:#0f1b2d;--mute:#56677f;--line:#d0dbe8;--amb:#f59e0b;--teal:#0d9488;--live:#15803d;--late:#c81e3a;--soft:#f3f7fb;
+box-sizing:border-box;padding-top:env(safe-area-inset-top,0px);padding-bottom:env(safe-area-inset-bottom,0px)}
+@media (prefers-color-scheme:dark){:root:not([data-theme="light"]){--bg:#0a1322;--panel:#13213a;--ink:#eaf1ff;--mute:#93a7c8;--line:#263a5e;--teal:#2dd4bf;--live:#4ade80;--late:#fb7185;--soft:#0f1b31}}
+:root[data-theme="dark"]{--bg:#0a1322;--panel:#13213a;--ink:#eaf1ff;--mute:#93a7c8;--line:#263a5e;--teal:#2dd4bf;--live:#4ade80;--late:#fb7185;--soft:#0f1b31}
+*,*::before,*::after{box-sizing:inherit}
+html{scroll-padding-top:env(safe-area-inset-top,0px)}
+body{margin:0;background:var(--bg);color:var(--ink);font:400 17px/1.45 Barlow,"Segoe UI",sans-serif}
+h1,h2,h3,.d{font-family:"Chakra Petch","Trebuchet MS",sans-serif;margin:0}
+header{position:sticky;top:env(safe-area-inset-top,0px);z-index:5;background:var(--ink);color:var(--bg);display:flex;flex-wrap:wrap;gap:8px 24px;align-items:center;padding:10px 16px}
+header h1{font-size:22px;color:var(--amb);letter-spacing:.5px}
+nav{display:flex;gap:6px;flex-wrap:wrap}
+nav button{background:none;border:0;color:inherit;font:600 16px "Chakra Petch",sans-serif;padding:6px 14px;cursor:pointer;border-bottom:3px solid transparent;opacity:.75}
+nav button[aria-current="page"]{opacity:1;border-color:var(--amb)}
+main{max-width:1000px;margin:0 auto;padding:22px 16px 56px}
+.page{display:none}.page.on{display:block}
+h2{font-size:26px;margin-bottom:14px}
+h3{font-size:18px;margin-bottom:10px}
+.panel{background:var(--panel);border:1px solid var(--line);border-radius:14px;padding:16px}
+.two{display:grid;gap:18px;grid-template-columns:minmax(0,1fr)}
+@media(min-width:860px){.two{grid-template-columns:minmax(0,1.1fr) minmax(0,1fr)}.sched{grid-template-columns:320px minmax(0,1fr)}}
+.hero{background:linear-gradient(135deg,var(--ink),#20365c);color:#fff;border-radius:18px;padding:22px;margin-bottom:18px;border:0}
+.hero .k{color:var(--amb);font:700 15px "Chakra Petch",sans-serif}
+.hero .big{font:700 clamp(26px,6vw,42px)/1.15 "Chakra Petch",sans-serif;margin:6px 0 8px;overflow-wrap:anywhere}
+.hero .sm{color:#c9d6ee}
+.pbar{height:12px;border-radius:99px;background:rgba(127,150,190,.3);overflow:hidden;margin:12px 0}
+.pbar i{display:block;height:100%;width:0;background:linear-gradient(90deg,var(--amb),var(--teal));border-radius:99px;transition:width .6s}
+.tiles{display:grid;grid-template-columns:repeat(auto-fit,minmax(130px,1fr));gap:12px;margin-bottom:18px}
+.tile b{display:block;font:700 28px "Chakra Petch",sans-serif}.tile span{color:var(--mute)}
+.tlw{position:relative;margin-left:0}
+.hr{position:absolute;left:0;right:0;border-top:1px solid var(--line);color:var(--mute);font-size:13px}
+.hr span{position:absolute;top:-10px;left:0;background:var(--panel);padding-right:6px}
+.blk{position:absolute;border-radius:8px;padding:4px 8px;overflow:hidden;font-weight:600;font-size:15px;line-height:1.2;border-left:5px solid;background:var(--soft);color:var(--ink)}
+.blk.task{border-color:var(--amb)}.blk.game{border-color:var(--teal)}.blk.done{opacity:.5;text-decoration:line-through}.blk.live{box-shadow:0 0 0 2px var(--live)}
+.blk small{display:block;font-weight:400;color:var(--mute)}
+.now{position:absolute;left:48px;right:0;border-top:2px solid var(--late);z-index:2}
+form{display:grid;gap:12px;align-self:start}
+label{display:grid;gap:4px;color:var(--mute);font-weight:500}
+input,select{font:inherit;color:var(--ink);background:var(--soft);border:1px solid var(--line);border-radius:8px;padding:9px 10px;width:100%;min-width:0}
+input:focus-visible,select:focus-visible,button:focus-visible{outline:3px solid var(--teal);outline-offset:2px}
+.row{display:grid;grid-template-columns:1fr 1fr;gap:10px}
+.btn{background:var(--amb);color:#0f1b2d;border:0;border-radius:10px;padding:10px 16px;font:700 16px "Chakra Petch",sans-serif;cursor:pointer}
+.btn.alt{background:var(--soft);color:var(--ink);border:1px solid var(--line)}
+.btn.sm{padding:5px 12px;font-size:14px}
+.tabs{display:flex;gap:8px;flex-wrap:wrap;margin-bottom:14px}
+.tab{background:var(--panel);border:1px solid var(--line);border-radius:99px;padding:5px 14px;cursor:pointer;color:var(--mute);font:600 15px "Chakra Petch",sans-serif}
+.tab[aria-pressed="true"]{background:var(--ink);color:var(--bg);border-color:var(--ink)}
+.day{font:700 15px "Chakra Petch",sans-serif;color:var(--mute);margin:16px 0 8px}
+.card{background:var(--panel);border:1px solid var(--line);border-left:6px solid var(--amb);border-radius:12px;padding:12px 14px;margin-bottom:10px;display:grid;gap:4px}
+.card.game{border-left-color:var(--teal)}.card.done{opacity:.6}
+.head{display:flex;justify-content:space-between;gap:10px;align-items:start}
+.t{font:700 19px "Chakra Petch",sans-serif;overflow-wrap:anywhere}
+.chip{font:700 13px "Chakra Petch",sans-serif;padding:2px 10px;border-radius:99px;border:1px solid currentColor;white-space:nowrap}
+.chip.live{color:var(--live)}.chip.late{color:var(--late)}.chip.up{color:var(--mute)}.chip.done{color:var(--teal)}
+.meta{color:var(--mute);display:flex;gap:4px 16px;flex-wrap:wrap}
+.acts{display:flex;gap:8px;flex-wrap:wrap;margin-top:6px}
+.empty{border:2px dashed var(--line);border-radius:12px;padding:22px;text-align:center;color:var(--mute)}
+.bgs{display:grid;grid-template-columns:repeat(auto-fill,minmax(180px,1fr));gap:12px}
+.bg{border:1px solid var(--line);border-radius:12px;padding:12px;opacity:.5;background:var(--panel)}
+.bg.on{opacity:1;border-color:var(--amb)}.bg b{font-family:"Chakra Petch",sans-serif}.bg span{display:block;color:var(--mute);font-size:15px}
+dialog{border:0;border-radius:16px;background:var(--panel);color:var(--ink);padding:24px;max-width:420px;width:calc(100% - 32px)}
+dialog::backdrop{background:rgba(5,10,25,.7)}
+#toast{position:fixed;left:50%;bottom:calc(20px + env(safe-area-inset-bottom,0px));transform:translateX(-50%);background:var(--ink);color:var(--bg);padding:10px 18px;border-radius:99px;opacity:0;pointer-events:none;transition:opacity .25s;z-index:9}
+#toast.show{opacity:1}
+@media (prefers-reduced-motion:reduce){*{transition:none!important}}
+</style>
+</head>
+<body>
+<header>
+  <h1>Questlog</h1>
+  <nav id="nav">
+    <button data-r="dash">Dashboard</button>
+    <button data-r="sched">Schedule</button>
+    <button data-r="rew">Rewards</button>
+  </nav>
+</header>
+<main>
+  <section class="page" id="p-dash">
+    <div class="panel hero" id="hero"></div>
+    <div class="tiles" id="tiles"></div>
+    <div class="panel"><h3>Today's timeline</h3><div id="tl"></div></div>
+  </section>
+
+  <section class="page" id="p-sched">
+    <h2>Schedule</h2>
+    <div class="two sched">
+      <form class="panel" id="f">
+        <h3>New entry</h3>
+        <label>Type<select id="type"><option value="task">Quest (task)</option><option value="game">Game session</option></select></label>
+        <label>Title<input id="title" required maxlength="60" placeholder="Finish the report"></label>
+        <label>Starts<input id="start" type="datetime-local" required></label>
+        <label>Ends<input id="end" type="datetime-local" required></label>
+        <label id="gf" hidden>Platform<select id="plat"><option>PC</option><option>Console</option><option>Mobile</option><option>Board game</option></select></label>
+        <button class="btn" type="submit">Add to schedule</button>
+      </form>
+      <div>
+        <div class="tabs" id="tabs">
+          <button class="tab" data-f="all" aria-pressed="true">Active</button>
+          <button class="tab" data-f="task" aria-pressed="false">Quests</button>
+          <button class="tab" data-f="game" aria-pressed="false">Games</button>
+          <button class="tab" data-f="done" aria-pressed="false">Cleared</button>
+        </div>
+        <div id="list"></div>
+      </div>
+    </div>
+  </section>
+
+  <section class="page" id="p-rew">
+    <h2>Rewards</h2>
+    <div class="panel" style="margin-bottom:18px"><div class="d" style="font-size:24px" id="rLvl"></div><div class="pbar"><i id="rFill"></i></div><div id="rXp" style="color:var(--mute)"></div></div>
+    <h3>Badges</h3><div class="bgs" id="bgs" style="margin-bottom:22px"></div>
+    <h3>Recently cleared</h3><div id="hist"></div>
+  </section>
+</main>
+
+<dialog id="dlg">
+  <h2 id="dT" style="font-size:24px"></h2>
+  <p id="dM"></p>
+  <div class="acts">
+    <button class="btn" id="dDone">Mark cleared</button>
+    <button class="btn alt" id="dShift"></button>
+    <button class="btn alt" id="dClose">Close</button>
+  </div>
+</dialog>
+<div id="toast" role="status"></div>
+
+<script>
+const KEY = "questlog.v2";
+let S = { items: [], xp: 0, streak: 0, last: "", done: 0 };
+try {
+  const r = localStorage.getItem(KEY), o = localStorage.getItem("questlog.v1");
+  if (r) S = Object.assign(S, JSON.parse(r));
+  else if (o) { const p = JSON.parse(o); S = Object.assign(S, p); S.items = (p.items || []).map(i => ({ id: i.id, type: i.type, title: i.title, plat: i.plat, done: i.done, start: i.ts, end: i.ts + (i.dur || 30) * 6e4 })); }
+} catch (e) {}
+const save = () => { try { localStorage.setItem(KEY, JSON.stringify(S)); } catch (e) {} };
+const $ = s => document.querySelector(s);
+const el = (t, c, x) => { const e = document.createElement(t); if (c) e.className = c; if (x != null) e.textContent = x; return e; };
+let route = "dash", filter = "all", actx = null, queue = [], cur = null, hkey = "", ticks = 0;
+
+const lvl = () => 1 + Math.floor(S.xp / 100);
+const gameMs = () => S.items.filter(i => i.done && i.type === "game").reduce((a, i) => a + i.end - i.start, 0);
+const BADGES = [
+  ["First clear", "Clear any entry", () => S.done >= 1],
+  ["Hat trick", "Clear 3 entries", () => S.done >= 3],
+  ["Pro gamer", "Clear 3 game sessions", () => S.items.filter(i => i.done && i.type === "game").length >= 3],
+  ["On fire", "Reach a 3 day streak", () => S.streak >= 3],
+  ["Level 3", "Earn 200 XP", () => lvl() >= 3],
+  ["Marathon", "Play 5 hours in total", () => gameMs() >= 18e6]
+];
+const hm = ts => new Date(ts).toLocaleTimeString([], { hour: "2-digit", minute: "2-digit" });
+function span(ms) { const m = Math.round(ms / 6e4), h = Math.floor(m / 60); return h ? h + "h" + (m % 60 ? " " + m % 60 + "m" : "") : m + "m"; }
+function status(i, n = Date.now()) { return i.done ? "done" : n < i.start ? "up" : n < i.end ? "live" : "late"; }
+const LABEL = { done: "Cleared", up: "Upcoming", live: "In progress", late: "Missed" };
+function toast(m) { const t = $("#toast"); t.textContent = m; t.classList.add("show"); clearTimeout(toast.h); toast.h = setTimeout(() => t.classList.remove("show"), 2200); }
+function beep() {
+  try {
+    actx = actx || new (window.AudioContext || window.webkitAudioContext)();
+    [660, 880, 1320].forEach((f, k) => {
+      const o = actx.createOscillator(), g = actx.createGain(), t = actx.currentTime + k * .14;
+      o.type = "square"; o.frequency.value = f; g.gain.setValueAtTime(.08, t); g.gain.exponentialRampToValueAtTime(.001, t + .12);
+      o.connect(g); g.connect(actx.destination); o.start(t); o.stop(t + .13);
+    });
+  } catch (e) {}
+}
+function dayLabel(ts) {
+  const d = new Date(ts).toDateString();
+  if (d === new Date().toDateString()) return "Today";
+  if (d === new Date(Date.now() + 864e5).toDateString()) return "Tomorrow";
+  return new Date(ts).toLocaleDateString([], { weekday: "long", month: "short", day: "numeric" });
+}
+
+function clear(id) {
+  const i = S.items.find(x => x.id === id); if (!i || i.done) return;
+  const before = lvl(), late = Date.now() > i.end, base = i.type === "game" ? 30 : 20, gain = late ? base / 2 : base;
+  i.done = true; i.doneAt = Date.now(); S.xp += gain; S.done++;
+  const today = new Date().toDateString(), y = new Date(Date.now() - 864e5).toDateString();
+  if (S.last !== today) { S.streak = S.last === y ? S.streak + 1 : 1; S.last = today; }
+  save(); hkey = ""; render();
+  toast(lvl() > before ? "Level up! You reached Lv " + lvl() : "+" + gain + " XP" + (late ? " (late)" : ""));
+}
+
+/* ---------- Dashboard ---------- */
+function hero() {
+  const now = Date.now(), act = S.items.filter(i => !i.done);
+  const t = act.filter(i => i.start <= now && i.end > now).sort((a, b) => a.end - b.end)[0] || act.filter(i => i.start > now).sort((a, b) => a.start - b.start)[0];
+  const h = $("#hero"), k = t ? t.id + (t.start <= now ? "L" : "U") : "-";
+  if (k !== hkey) {
+    hkey = k;
+    h.innerHTML = '<div class="k"></div><div class="big"></div><div class="sm" id="hT"></div><div class="pbar"><i id="hB"></i></div><div class="acts"></div>';
+    h.children[0].textContent = !t ? "Nothing queued" : t.start <= now ? "In progress" : "Next up";
+    h.children[1].textContent = t ? t.title : "Free time";
+    if (t) { const b = el("button", "btn", "Mark cleared"); b.onclick = () => clear(t.id); h.lastChild.append(b); }
+  }
+  if (!t) { $("#hT").textContent = "Add a quest or game session on the Schedule page."; $("#hB").style.width = "0"; return; }
+  const live = t.start <= now;
+  $("#hT").textContent = hm(t.start) + " to " + hm(t.end) + ", " + (live ? span(t.end - now) + " left" : "starts in " + span(t.start - now));
+  $("#hB").style.width = (live ? (now - t.start) / (t.end - t.start) * 100 : 0) + "%";
+}
+function tiles() {
+  const box = $("#tiles"); box.innerHTML = "";
+  const up = S.items.filter(i => !i.done && i.end > Date.now()).length;
+  [["Level", lvl()], ["XP", S.xp], ["Day streak", S.streak], ["Still to do", up]].forEach(([l, v]) => {
+    const d = el("div", "panel tile"); d.append(el("b", "", v), el("span", "", l)); box.append(d);
+  });
+}
+function timeline() {
+  const box = $("#tl"); box.innerHTML = "";
+  const d0 = new Date(); d0.setHours(0, 0, 0, 0); const s0 = d0.getTime(), s1 = s0 + 864e5;
+  const it = S.items.filter(i => i.start < s1 && i.end > s0).sort((a, b) => a.start - b.start);
+  if (!it.length) { box.append(el("div", "empty", "Nothing scheduled today. Add an entry on the Schedule page.")); return; }
+  let a = 8, b = 20;
+  it.forEach(i => { a = Math.min(a, Math.floor((Math.max(i.start, s0) - s0) / 36e5)); b = Math.max(b, Math.ceil((Math.min(i.end, s1) - s0) / 36e5)); });
+  const H = 56, w = el("div", "tlw"); w.style.height = (b - a) * H + "px";
+  for (let h = a; h <= b; h++) { const r = el("div", "hr"); r.style.top = (h - a) * H + "px"; r.append(el("span", "", String(h % 24).padStart(2, "0") + ":00")); w.append(r); }
+  const cols = [], col = new Map();
+  it.forEach(i => { let c = cols.findIndex(e => e <= i.start); if (c < 0) { c = cols.length; cols.push(0); } cols[c] = i.end; col.set(i.id, c); });
+  it.forEach(i => {
+    const st = Math.max(i.start, s0), en = Math.min(i.end, s1), c = col.get(i.id), n = cols.length;
+    const x = el("div", "blk " + i.type + (i.done ? " done" : "") + (status(i) === "live" ? " live" : ""));
+    x.style.top = (st - s0 - a * 36e5) / 36e5 * H + "px"; x.style.height = Math.max(30, (en - st) / 36e5 * H - 2) + "px";
+    x.style.left = "calc(56px + (100% - 56px) * " + c + " / " + n + ")"; x.style.width = "calc((100% - 56px) / " + n + " - 4px)";
+    x.append(document.createTextNode(i.title)); x.append(el("small", "", hm(i.start) + " to " + hm(i.end)));
+    w.append(x);
+  });
+  const now = Date.now();
+  if (now >= s0 + a * 36e5 && now <= s0 + b * 36e5) { const l = el("div", "now"); l.style.top = (now - s0 - a * 36e5) / 36e5 * H + "px"; w.append(l); }
+  box.append(w);
+}
+
+/* ---------- Schedule ---------- */
+function list() {
+  const box = $("#list"); box.innerHTML = "";
+  let items = S.items.filter(i => filter === "done" ? i.done : !i.done && (filter === "all" || i.type === filter));
+  items.sort((a, b) => filter === "done" ? b.doneAt - a.doneAt : a.start - b.start);
+  if (!items.length) { box.append(el("div", "empty", filter === "done" ? "Nothing cleared yet. Finish an entry to earn XP." : "Nothing here yet. Add an entry with a start and end time.")); return; }
+  let day = "";
+  items.forEach(i => {
+    const dl = dayLabel(i.start);
+    if (dl !== day) { day = dl; box.append(el("div", "day", dl)); }
+    const c = el("article", "card " + i.type + (i.done ? " done" : "")), s = status(i), hd = el("div", "head");
+    hd.append(el("div", "t", (i.type === "game" ? "🎮 " : "⚔️ ") + i.title), el("span", "chip " + s, LABEL[s]));
+    const m = el("div", "meta");
+    m.append(el("span", "", hm(i.start) + " to " + hm(i.end)), el("span", "", span(i.end - i.start)));
+    if (i.type === "game") m.append(el("span", "", i.plat));
+    const a = el("div", "acts");
+    if (!i.done) { const b = el("button", "btn sm", "Mark cleared"); b.onclick = () => clear(i.id); a.append(b); }
+    const d = el("button", "btn sm alt", "Delete"); d.onclick = () => { S.items = S.items.filter(x => x.id !== i.id); save(); hkey = ""; render(); }; a.append(d);
+    c.append(hd, m, a); box.append(c);
+  });
+}
+
+/* ---------- Rewards ---------- */
+function rewards() {
+  $("#rLvl").textContent = "Level " + lvl(); $("#rFill").style.width = S.xp % 100 + "%";
+  $("#rXp").textContent = S.xp % 100 + " / 100 XP to level " + (lvl() + 1) + ". Game time logged: " + span(gameMs()) + ".";
+  const g = $("#bgs"); g.innerHTML = "";
+  BADGES.forEach(([n, d, f]) => { const b = el("div", "bg" + (f() ? " on" : "")); b.append(el("b", "", n), el("span", "", d)); g.append(b); });
+  const h = $("#hist"); h.innerHTML = "";
+  const done = S.items.filter(i => i.done).sort((a, b) => (b.doneAt || 0) - (a.doneAt || 0)).slice(0, 5);
+  if (!done.length) h.append(el("div", "empty", "Cleared entries show up here."));
+  done.forEach(i => { const c = el("div", "card " + i.type); c.append(el("div", "t", i.title), el("div", "meta", dayLabel(i.start) + ", " + hm(i.start) + " to " + hm(i.end))); h.append(c); });
+}
+
+/* ---------- Routing and render ---------- */
+function go(r) { route = r; try { location.hash = "/" + r; } catch (e) {} render(); }
+function render() {
+  ["dash", "sched", "rew"].forEach(r => $("#p-" + r).classList.toggle("on", r === route));
+  document.querySelectorAll("#nav button").forEach(b => b.toggleAttribute("aria-current", b.dataset.r === route) || b.removeAttribute("aria-current"));
+  document.querySelectorAll("#nav button").forEach(b => { if (b.dataset.r === route) b.setAttribute("aria-current", "page"); else b.removeAttribute("aria-current"); });
+  if (route === "dash") { hero(); tiles(); timeline(); }
+  if (route === "sched") list();
+  if (route === "rew") rewards();
+}
+window.addEventListener("hashchange", () => { const r = location.hash.replace("#/", ""); if (["dash", "sched", "rew"].includes(r) && r !== route) { route = r; render(); } });
+document.querySelectorAll("#nav button").forEach(b => b.onclick = () => go(b.dataset.r));
+
+/* ---------- Alerts ---------- */
+function tick() {
+  const now = Date.now();
+  S.items.forEach(i => {
+    if (i.done) return;
+    if (!i.a1 && now >= i.start) { i.a1 = true; if (now < i.end) queue.push({ id: i.id, k: "start" }); save(); }
+    if (!i.a2 && now >= i.end) { i.a2 = true; if (now - i.end < 6e5) queue.push({ id: i.id, k: "end" }); save(); }
+  });
+  if (queue.length && !cur) nextAlert();
+  if (route === "dash") { hero(); if (++ticks % 30 === 0) timeline(); }
+  if (route === "sched" && ticks++ % 30 === 0) list();
+}
+function nextAlert() {
+  const q = queue.shift(), i = S.items.find(x => x.id === q.id);
+  if (!i || i.done) { if (queue.length) nextAlert(); return; }
+  cur = { i, k: q.k }; beep();
+  $("#dT").textContent = q.k === "start" ? (i.type === "game" ? "Game time!" : "Quest time!") : "Time is up";
+  $("#dM").textContent = q.k === "start" ? i.title + " starts now and ends at " + hm(i.end) + "." : i.title + " was due to end at " + hm(i.end) + ".";
+  $("#dShift").textContent = q.k === "start" ? "Snooze 5 min" : "Extend 15 min";
+  $("#dlg").showModal(); document.title = i.title;
+}
+function closeDlg() { $("#dlg").close(); cur = null; document.title = "Questlog"; if (queue.length) nextAlert(); }
+$("#dDone").onclick = () => { const id = cur.i.id; closeDlg(); clear(id); };
+$("#dShift").onclick = () => {
+  const { i, k } = cur;
+  if (k === "start") { i.start += 3e5; i.end += 3e5; i.a1 = false; i.a2 = false; } else { i.end += 9e5; i.a2 = false; }
+  save(); closeDlg(); hkey = ""; render(); toast(k === "start" ? "Snoozed 5 minutes" : "Extended by 15 minutes");
+};
+$("#dClose").onclick = closeDlg;
+$("#dlg").addEventListener("cancel", e => { e.preventDefault(); closeDlg(); });
+
+/* ---------- Form ---------- */
+function local(ts) { const d = new Date(ts); d.setMinutes(d.getMinutes() - d.getTimezoneOffset()); return d.toISOString().slice(0, 16); }
+function defaults() { const d = new Date(Date.now() + 36e5); d.setMinutes(0, 0, 0); $("#start").value = local(d); $("#end").value = local(+d + 36e5); }
+defaults();
+$("#type").onchange = e => { $("#gf").hidden = e.target.value !== "game"; };
+$("#start").onchange = () => { const s = new Date($("#start").value).getTime(), e = new Date($("#end").value).getTime(); if (!(e > s)) $("#end").value = local(s + 36e5); };
+$("#f").onsubmit = e => {
+  e.preventDefault();
+  try { actx = actx || new (window.AudioContext || window.webkitAudioContext)(); if (actx.resume) actx.resume(); } catch (x) {}
+  const s = new Date($("#start").value).getTime(), en = new Date($("#end").value).getTime();
+  if (isNaN(s) || isNaN(en)) { toast("Pick a start and an end time"); return; }
+  if (en <= s) { toast("The end time must be after the start time"); return; }
+  S.items.push({ id: Date.now() + "" + Math.floor(Math.random() * 1000), type: $("#type").value, title: $("#title").value.trim(), plat: $("#plat").value, start: s, end: en, done: false, a1: s <= Date.now(), a2: en <= Date.now() });
+  save(); $("#title").value = ""; defaults(); hkey = ""; render(); toast("Added to your schedule");
+};
+document.querySelectorAll(".tab").forEach(t => t.onclick = () => {
+  filter = t.dataset.f; document.querySelectorAll(".tab").forEach(x => x.setAttribute("aria-pressed", x === t)); list();
+});
+
+const r0 = location.hash.replace("#/", ""); if (["dash", "sched", "rew"].includes(r0)) route = r0;
+render(); setInterval(tick, 1000);
+</script>
+</body>
+</html>
